@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Picasee</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: linear-gradient(135deg, #FF8040, #FF6F91);
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+      border-bottom: 4px solid #FF6F91;
+    }
+    h1 {
+      margin: 0;
+      font-size: 2.5em;
+    }
+    p.subtitle {
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+    .dashboard-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      padding: 30px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: transform 0.2s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .card img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      display: block;
+    }
+    .card-content {
+      padding: 20px;
+      text-align: left;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .card-content h2 {
+      margin-top: 0;
+      color: #FF6F91;
+      font-size: 1.5em;
+    }
+    .card-content p {
+      margin: 0;
+      line-height: 1.4;
+    }
+    .label {
+      font-weight: bold;
+      color: #333;
+    }
+    @media screen and (max-width: 480px) {
+      h1 {
+        font-size: 2em;
+      }
+      .dashboard-container {
+        padding: 20px 10px;
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Dashboard Picasee</h1>
+    <p class="subtitle">Les profils des utilisateurs engagés ❤️</p>
+  </header>
+
+  <div class="dashboard-container" id="dashboardContainer">
+    <!-- Les cartes seront injectées ici -->
+  </div>
+
+  <script>
+    // Fonction pour convertir une entrée du nouveau format JSON
+    function convertProfile(data) {
+      return {
+        name: capitalize(data.id || "Anonyme"),
+        // Image générée dynamiquement en fonction de l'id
+        photoUrl: "https://source.unsplash.com/600x300/?face," + data.id,
+        presentation: data.presentation || "",
+        besoins: data.besoins || "",
+        apports: data.apports || "",
+        interets: data.interets || ""
+      };
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    // Données reçues de l'équipe (nouveau format JSON)
+    const externalProfiles = [
+      {
+        "id": "toto",
+        "presentation": "Je m'appelle Toto, j'habite à Paris et j'aime bien les assos", 
+        "besoins": "Je cherche une entreprise qui pourrait aider mon asso", 
+        "apports": "Le FCT est une asso de foot pour les jeunes",
+        "interets": "le foot"
+      }
+    ];
+
+    // Profils internes déjà existants (format déjà adapté à l'affichage)
+    const fakeAPI = [
+      {
+        name: "Alice",
+        photoUrl: "https://randomuser.me/api/portraits/women/10.jpg",
+        presentation: "Je suis très engagée dans le monde associatif et j'aime travailler avec les jeunes.",
+        passions: "Voyages, nature, animaux, projets solidaires",
+        objectif: "Créer des partenariats avec des entreprises locales",
+        structure: "Association Les Ailes Solidaires"
+      },
+      {
+        name: "Lucas",
+        photoUrl: "https://randomuser.me/api/portraits/men/15.jpg",
+        presentation: "Je suis entrepreneur social et je veux contribuer à des causes utiles.",
+        passions: "Informatique, éducation, design social",
+        objectif: "Trouver des assos à soutenir avec mes compétences",
+        structure: "Startup Social Boost"
+      },
+      {
+        name: "Fatou",
+        photoUrl: "https://randomuser.me/api/portraits/women/44.jpg",
+        presentation: "J'accompagne les femmes dans leur émancipation via des ateliers d'expression créative.",
+        passions: "Écriture, théâtre, bien-être",
+        objectif: "Partager mes pratiques avec d'autres structures",
+        structure: "Collectif Voix Libres"
+      }
+    ];
+
+    // Récupérer le profil local si disponible (provenant du formulaire)
+    function getLocalProfile() {
+      const fields = ["id", "presentation", "interets", "besoins", "apports"];
+      const profile = {};
+      for (const field of fields) {
+        const value = localStorage.getItem(field);
+        if (!value) return null;
+        profile[field] = value;
+      }
+      profile.photoUrl = "https://source.unsplash.com/600x300/?face,profile";
+      profile.name = capitalize(profile.id);
+      return profile;
+    }
+
+    function displayProfiles(data) {
+      const container = document.getElementById('dashboardContainer');
+      container.innerHTML = '';
+
+      data.forEach(profile => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <img src="${profile.photoUrl}" alt="Photo de ${profile.name}">
+          <div class="card-content">
+            <h2>${profile.name}</h2>
+            <p><span class="label">Présentation :</span> ${profile.presentation}</p>
+            <p><span class="label">Besoins :</span> ${profile.besoins}</p>
+            <p><span class="label">Apports :</span> ${profile.apports}</p>
+            <p><span class="label">Interets :</span> ${profile.interets}</p>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Intégrer le profil provenant du formulaire s'il existe
+    const userProfile = getLocalProfile();
+    if (userProfile) {
+      fakeAPI.unshift(userProfile);
+      localStorage.clear();
+    }
+
+    // Convertir les profils externes et les ajouter
+    const converted = externalProfiles.map(convertProfile);
+    const fullList = [...converted, ...fakeAPI];
+
+    displayProfiles(fullList);
+  </script>
+
+</body>
+</html>

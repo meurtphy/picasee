@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matchs Picasee</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #fdfdfd;
+    }
+
+    h1 {
+      text-align: center;
+      color: #FF6F91;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .profile {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .profile h2 {
+      margin-top: 0;
+      color: #FF8040;
+    }
+
+    .match-list {
+      margin-top: 10px;
+      padding-left: 20px;
+    }
+
+    .match-item {
+      margin-bottom: 10px;
+    }
+
+    .match-item img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+
+    .match-item span {
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🔗 Vos Matchs</h1>
+  <div class="container" id="matchContainer">
+    
+  </div>
+
+  <script>
+    async function loadMatches() {
+      const container = document.getElementById('matchContainer');
+      container.innerHTML = "";
+
+      try {
+        const matches = localStorage.getItem("matches");
+
+        if (matches.length === 0) {
+          container.innerHTML = "<p>Aucun match trouvé pour le moment.</p>";
+          return;
+        }
+
+        matches.forEach(user => {
+          const block = document.createElement('div');
+          block.className = 'profile';
+          block.innerHTML = `<h2>${capitalize(user.id)}</h2>`;
+          block.innerHTML += `<p><em>${user.text}</em></p>`;
+          block.innerHTML += `<p><em>${user.distance}</em></p>`;
+          container.appendChild(block);
+        });
+      } catch (error) {
+        container.innerHTML = "<p>Erreur de chargement des matchs. Vérifie l'API ou la connexion.</p>";
+        console.error(error);
+      }
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    loadMatches();
+  </script>
+</body>
+</html>
